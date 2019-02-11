@@ -21,7 +21,7 @@ var round = flag.Bool("round", false, "rounds result")
 
 func parseArgsParen(args string) string {
 	// defile parentheses regex (only finds inner parentheses)
-	parenOpRegex, err := regexp.Compile(`\(\d+(\.\d+)?(\^|\*|\/|\+|\-)\d+(\.\d+)?\)`)
+	parenOpRegex, err := regexp.Compile(`\(\-?\d+(\.\d+)?((\^|\*|\/|\+|\-)\-?\d+(\.\d+)?)+\)`)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
