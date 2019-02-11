@@ -17,24 +17,22 @@ var floor = flag.Bool("floor", false, "rounds result down")
 var ceil = flag.Bool("ceil", false, "rounds result up")
 var round = flag.Bool("round", false, "rounds result")
 
-func parseArgsParen(args string, fullString bool) string { // fullString should be set to true when calling with all arguments, otherwise false
-	parenOpRegex, err := regexp.Compile(`\(.+\)`)
+func parseArgsParen(args string) string {
+	// defile parentheses regex (only finds inner parentheses)
+	parenOpRegex, err := regexp.Compile(`\(\d+(\.\d+)?(\^|\*|\/|\+|\-)\d+(\.\d+)?\)`)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
-	parenIndexes := parenOpRegex.FindAllIndex([]byte(args), -1)
-	if parenIndexes != nil {
-		for _, match := range parenIndexes {
-			fmt.Println(args[match[0]:match[1]])
-			args = args[:match[0]] + string(parseArgsParen(args[match[0]+1:match[1]-1], false)) + args[:match[1]]
-		}
+	// parse all parentheses, starting from innermost and working up to outermost
+	for parenIndexes := parenOpRegex.FindStringIndex(args); parenIndexes != nil; parenIndexes = parenOpRegex.FindStringIndex(args) {
+		args = args[:parenIndexes[0]] + parseArgs(args[parenIndexes[0]+1:parenIndexes[1]-1]) + args[parenIndexes[1]:]
 	}
-	fmt.Printf("Arguments: %s\n", args)
+	// Once we know that all parentheses are resolved, parse other args and return string answer
 	return parseArgs(args)
 }
 
 func parsePower(loc []int, equation string) string {
-	// split at ^ go get both digits
+	// split at ^ to get both digits
 	powerString := strings.Split(equation[loc[0]:loc[1]], "^")
 	// parse both digits in equation
 	leftSide, err := strconv.ParseFloat(powerString[0], 64)
@@ -49,12 +47,77 @@ func parsePower(loc []int, equation string) string {
 	equation = equation[:loc[0]] + strconv.FormatFloat(math.Pow(leftSide, rightSide), 'f', -1, 64) + equation[loc[1]:]
 	return equation
 }
+func parseMult(loc []int, equation string) string {
+	// split at * to get both digits
+	powerString := strings.Split(equation[loc[0]:loc[1]], "*")
+	// parse both digits in equation
+	leftSide, err := strconv.ParseFloat(powerString[0], 64)
+	if err != nil {
+		fmt.Printf("while parsing multiplication: %v", err)
+	}
+	rightSide, err := strconv.ParseFloat(powerString[1], 64)
+	if err != nil {
+		fmt.Printf("while parsing multiplication: %v", err)
+	}
+	// write the values to the input
+	equation = equation[:loc[0]] + strconv.FormatFloat(leftSide*rightSide, 'f', -1, 64) + equation[loc[1]:]
+	return equation
+}
+func parseDiv(loc []int, equation string) string {
+	// split at / to get both digits
+	powerString := strings.Split(equation[loc[0]:loc[1]], "/")
+	// parse both digits in equation
+	leftSide, err := strconv.ParseFloat(powerString[0], 64)
+	if err != nil {
+		fmt.Printf("while parsing division: %v", err)
+	}
+	rightSide, err := strconv.ParseFloat(powerString[1], 64)
+	if err != nil {
+		fmt.Printf("while parsing division: %v", err)
+	}
+	// write the values to the input
+	equation = equation[:loc[0]] + strconv.FormatFloat(leftSide/rightSide, 'f', -1, 64) + equation[loc[1]:]
+	return equation
+}
+func parseAdd(loc []int, equation string) string {
+	// split at + to get both digits
+	powerString := strings.Split(equation[loc[0]:loc[1]], "+")
+	// parse both digits in equation
+	leftSide, err := strconv.ParseFloat(powerString[0], 64)
+	if err != nil {
+		fmt.Printf("while parsing addition: %v", err)
+	}
+	rightSide, err := strconv.ParseFloat(powerString[1], 64)
+	if err != nil {
+		fmt.Printf("while parsing addition: %v", err)
+	}
+	// write the values to the input
+	equation = equation[:loc[0]] + strconv.FormatFloat(leftSide+rightSide, 'f', -1, 64) + equation[loc[1]:]
+	return equation
+}
+func parseSub(loc []int, equation string) string {
+	// split at - to get both digits
+	powerString := strings.Split(equation[loc[0]:loc[1]], "-")
+	// parse both digits in equation
+	leftSide, err := strconv.ParseFloat(powerString[0], 64)
+	if err != nil {
+		fmt.Printf("while parsing subtraction: %v", err)
+	}
+	rightSide, err := strconv.ParseFloat(powerString[1], 64)
+	if err != nil {
+		fmt.Printf("while parsing subtraction: %v", err)
+	}
+	// write the values to the input
+	equation = equation[:loc[0]] + strconv.FormatFloat(leftSide-rightSide, 'f', -1, 64) + equation[loc[1]:]
+	return equation
+}
 
 func parseArgs(args string) string {
 	// variable to be returned
 	returnString := args
+
 	// regular expressions to interpret user input:
-	plusOpRegex, err := regexp.Compile(`\d+(\.\d*)?\+\d+(\.\d*)?`)
+	addOpRegex, err := regexp.Compile(`\d+(\.\d*)?\+\d+(\.\d*)?`)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
@@ -75,36 +138,34 @@ func parseArgs(args string) string {
 		fmt.Printf("%v", err)
 	}
 
-	// using the regexps on the arguments
-	plusOpIndex := plusOpRegex.FindStringIndex(returnString)
-	if plusOpIndex != nil {
-		fmt.Println(args[plusOpIndex[0]:plusOpIndex[1]])
-	}
-	subOpIndex := subOpRegex.FindStringIndex(returnString)
-	if subOpIndex != nil {
-		fmt.Println(args[subOpIndex[0]:subOpIndex[1]])
-	}
-	divOpIndex := divOpRegex.FindStringIndex(returnString)
-	if divOpIndex != nil {
-		fmt.Println(args[divOpIndex[0]:divOpIndex[1]])
-	}
-	powerOpIndex := powerOpRegex.FindStringIndex(returnString)
-	if powerOpIndex != nil {
-		fmt.Println(args[powerOpIndex[0]:powerOpIndex[1]])
-	}
-	// values used to write to return value
+	// parse all exponents in equation
 	for powerOpIndex := powerOpRegex.FindStringIndex(returnString); powerOpIndex != nil; powerOpIndex = powerOpRegex.FindStringIndex(returnString) {
 		returnString = parsePower(powerOpIndex, returnString)
 	}
-	multOpIndex := multOpRegex.FindAllIndex([]byte(returnString), -1)
-	if multOpIndex != nil {
-		fmt.Println(returnString[multOpIndex[0][0]:multOpIndex[0][1]])
+	// parse all multiplication in equation
+	for multOpIndex := multOpRegex.FindStringIndex(returnString); multOpIndex != nil; multOpIndex = multOpRegex.FindStringIndex(returnString) {
+		returnString = parseMult(multOpIndex, returnString)
 	}
-	fmt.Println(returnString)
+	// parse all division in equation
+	for divOpIndex := divOpRegex.FindStringIndex(returnString); divOpIndex != nil; divOpIndex = divOpRegex.FindStringIndex(returnString) {
+		returnString = parseDiv(divOpIndex, returnString)
+	}
+	// parse all addition in equation
+	for addOpIndex := addOpRegex.FindStringIndex(returnString); addOpIndex != nil; addOpIndex = addOpRegex.FindStringIndex(returnString) {
+		returnString = parseAdd(addOpIndex, returnString)
+	}
+	// parse all subtraction in equation
+	for subOpIndex := subOpRegex.FindStringIndex(returnString); subOpIndex != nil; subOpIndex = subOpRegex.FindStringIndex(returnString) {
+		returnString = parseSub(subOpIndex, returnString)
+	}
+
+	// return string after parsing through order of operations
 	return returnString
 }
 
 func main() {
-	// load arguments into variable
-	parseArgsParen(userArgs, true)
+	// Print out equation:
+	fmt.Printf("Begining equation: %s\n", userArgs)
+	// Print out answer:
+	fmt.Printf("return value: %s\n", parseArgsParen(userArgs))
 }
