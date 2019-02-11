@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-var userArgs = strings.Join(os.Args[1:], "")
+var userArgs = regexp.MustCompile(` `).ReplaceAllString(strings.Join(os.Args[len(os.Args)-1:], ""), "")
 
 var floor = flag.Bool("floor", false, "rounds result down")
 var ceil = flag.Bool("ceil", false, "rounds result up")
@@ -164,8 +164,35 @@ func parseArgs(args string) string {
 }
 
 func main() {
+	flag.Parse()
 	// Print out equation:
 	fmt.Printf("Begining equation: %s\n", userArgs)
 	// Print out answer:
-	fmt.Printf("return value: %s\n", parseArgsParen(userArgs))
+	if *floor {
+		floatAnswer, err := strconv.ParseFloat(parseArgsParen(userArgs), 64)
+		if err != nil {
+			fmt.Printf("While handling flags: %v", err)
+		}
+		floatAnswer = math.Floor(floatAnswer)
+		stringAnswer := strconv.FormatFloat(floatAnswer, 'f', -1, 64)
+		fmt.Printf("return value: %v\n", stringAnswer)
+	} else if *ceil {
+		floatAnswer, err := strconv.ParseFloat(parseArgsParen(userArgs), 64)
+		if err != nil {
+			fmt.Printf("While handling flags: %v", err)
+		}
+		floatAnswer = math.Ceil(floatAnswer)
+		stringAnswer := strconv.FormatFloat(floatAnswer, 'f', -1, 64)
+		fmt.Printf("return value: %v\n", stringAnswer)
+	} else if *round {
+		floatAnswer, err := strconv.ParseFloat(parseArgsParen(userArgs), 64)
+		if err != nil {
+			fmt.Printf("While handling flags: %v", err)
+		}
+		floatAnswer = math.Round(floatAnswer)
+		stringAnswer := strconv.FormatFloat(floatAnswer, 'f', -1, 64)
+		fmt.Printf("return value: %v\n", stringAnswer)
+	} else {
+		fmt.Printf("return value: %v\n", parseArgsParen(userArgs))
+	}
 }
