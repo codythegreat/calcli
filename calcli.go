@@ -33,24 +33,27 @@ func parseArgsParen(args string, fullString bool) string { // fullString should 
 	return parseArgs(args)
 }
 
+func parsePower(loc []int, equation string) string {
+	// split at ^ go get both digits
+	powerString := strings.Split(equation[loc[0]:loc[1]], "^")
+	// parse both digits in equation
+	leftSide, err := strconv.ParseFloat(powerString[0], 64)
+	if err != nil {
+		fmt.Printf("while parsing exponents: %v", err)
+	}
+	rightSide, err := strconv.ParseFloat(powerString[1], 64)
+	if err != nil {
+		fmt.Printf("while parsing exponents: %v", err)
+	}
+	// write the values to the input
+	equation = equation[:loc[0]] + strconv.FormatFloat(math.Pow(leftSide, rightSide), 'f', -1, 64) + equation[loc[1]:]
+	return equation
+}
+
 func parseArgs(args string) string {
 	// variable to be returned
 	returnString := args
-	// variables to hold logic of operations
-	var hasExponent bool
-	var hasMult bool
-	var hasDiv bool
-	var hasAdd bool
-	var hasSub bool
 	// regular expressions to interpret user input:
-	floatRegex, err := regexp.Compile(`^\d*\.\d+$`)
-	if err != nil {
-		fmt.Printf("%v", err)
-	}
-	intRegex, err := regexp.Compile(`^\d+$`)
-	if err != nil {
-		fmt.Printf("%v", err)
-	}
 	plusOpRegex, err := regexp.Compile(`\d+(\.\d*)?\+\d+(\.\d*)?`)
 	if err != nil {
 		fmt.Printf("%v", err)
@@ -71,172 +74,31 @@ func parseArgs(args string) string {
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
-	eNumbRegex, err := regexp.Compile(`e`)
-	if err != nil {
-		fmt.Printf("%v", err)
-	}
-	piNumbRegex, err := regexp.Compile(`pi`)
-	if err != nil {
-		fmt.Printf("%v", err)
-	}
 
 	// using the regexps on the arguments
-	floatIndex := floatRegex.FindAllIndex([]byte(args), -1)
-	if floatIndex != nil {
-		fmt.Println(args[floatIndex[0][0]:floatIndex[0][1]])
-	}
-	intIndex := intRegex.FindAllIndex([]byte(args), -1)
-	if intIndex != nil {
-		fmt.Println(args[intIndex[0][0]:intIndex[0][1]])
-	}
-	plusOpIndex := plusOpRegex.FindAllIndex([]byte(args), -1)
+	plusOpIndex := plusOpRegex.FindStringIndex(returnString)
 	if plusOpIndex != nil {
-		fmt.Println(args[plusOpIndex[0][0]:plusOpIndex[0][1]])
-		hasAdd = true
+		fmt.Println(args[plusOpIndex[0]:plusOpIndex[1]])
 	}
-	subOpIndex := subOpRegex.FindAllIndex([]byte(args), -1)
+	subOpIndex := subOpRegex.FindStringIndex(returnString)
 	if subOpIndex != nil {
-		fmt.Println(args[subOpIndex[0][0]:subOpIndex[0][1]])
-		hasSub = true
+		fmt.Println(args[subOpIndex[0]:subOpIndex[1]])
 	}
-	multOpIndex := multOpRegex.FindAllIndex([]byte(args), -1)
-	if multOpIndex != nil {
-		fmt.Println(args[multOpIndex[0][0]:multOpIndex[0][1]])
-		hasMult = true
-	}
-	divOpIndex := divOpRegex.FindAllIndex([]byte(args), -1)
+	divOpIndex := divOpRegex.FindStringIndex(returnString)
 	if divOpIndex != nil {
-		fmt.Println(args[divOpIndex[0][0]:divOpIndex[0][1]])
-		hasDiv = true
+		fmt.Println(args[divOpIndex[0]:divOpIndex[1]])
 	}
-	powerOpIndex := powerOpRegex.FindAllIndex([]byte(args), -1)
+	powerOpIndex := powerOpRegex.FindStringIndex(returnString)
 	if powerOpIndex != nil {
-		fmt.Println(args[powerOpIndex[0][0]:powerOpIndex[0][1]])
-		hasExponent = true
-	}
-	eNumbIndex := eNumbRegex.FindAllIndex([]byte(args), -1)
-	if eNumbIndex != nil {
-		fmt.Println(args[eNumbIndex[0][0]:eNumbIndex[0][1]])
-	}
-	piNumbIndex := piNumbRegex.FindAllIndex([]byte(args), -1)
-	if piNumbIndex != nil {
-		fmt.Println(args[piNumbIndex[0][0]:piNumbIndex[0][1]])
+		fmt.Println(args[powerOpIndex[0]:powerOpIndex[1]])
 	}
 	// values used to write to return value
-	var powerResults []float64
-	if hasExponent == true { // if a '^' symbol exists in args
-		for _, power := range powerOpIndex { // for each power found in FindAllIndex
-			powerString := strings.Split(args[power[0]:power[1]], "^")
-			fString := floatRegex.FindString(powerString[0])
-			dString := intRegex.FindString(powerString[0])
-			if fString != "" {
-				f, err := strconv.ParseFloat(fString, 64)
-				if err != nil {
-					fmt.Printf("while parsing float in hasExponent: %v\n", err)
-				}
-				dpString := intRegex.FindString(powerString[1])
-				fpString := floatRegex.FindString(powerString[1])
-				if fpString != "" {
-					fp, err := strconv.ParseFloat(fpString, 64)
-					if err != nil {
-						fmt.Printf("while parsing float in hasExponent: %v\n", err)
-					}
-					fmt.Printf("%f\n", math.Pow(f, fp))
-					powerResults = append(powerResults, math.Pow(f, fp))
-				} else if dpString != "" {
-					dp, err := strconv.ParseFloat(dpString, 64)
-					if err != nil {
-						fmt.Printf("while parsing float in hasExponent: %v\n", err)
-					}
-					fmt.Printf("%f\n", math.Pow(f, dp))
-					powerResults = append(powerResults, math.Pow(f, dp))
-				}
-			} else if dString != "" {
-				d, err := strconv.ParseFloat(dString, 64)
-				if err != nil {
-					fmt.Printf("while parsing float in hasExponent: %v\n", err)
-				}
-				dpString := intRegex.FindString(powerString[1])
-				fpString := floatRegex.FindString(powerString[1])
-				if fpString != "" {
-					fp, err := strconv.ParseFloat(fpString, 64)
-					if err != nil {
-						fmt.Printf("while parsing float in hasExponent: %v\n", err)
-					}
-					fmt.Printf("%f\n", math.Pow(d, fp))
-					powerResults = append(powerResults, math.Pow(d, fp))
-				} else if dpString != "" {
-					dp, err := strconv.ParseFloat(dpString, 64)
-					if err != nil {
-						fmt.Printf("while parsing float in hasExponent: %v\n", err)
-					}
-					fmt.Printf("%f\n", math.Pow(d, dp))
-					powerResults = append(powerResults, math.Pow(d, dp))
-				}
-			}
-		}
-		for i := len(powerResults) - 1; i >= 0; i-- {
-			returnString = returnString[:powerOpIndex[i][0]] + strconv.FormatFloat(powerResults[i], 'f', -1, 64) + returnString[powerOpIndex[i][1]:]
-		}
+	for powerOpIndex := powerOpRegex.FindStringIndex(returnString); powerOpIndex != nil; powerOpIndex = powerOpRegex.FindStringIndex(returnString) {
+		returnString = parsePower(powerOpIndex, returnString)
 	}
-	var multResults []float64
-	if hasMult == true { // if a '*' symbol exists in args
-		for _, multiple := range powerOpIndex { // for each power found in FindAllIndex
-			multString := strings.Split(args[multiple[0]:multiple[1]], "^")
-			fString := floatRegex.FindString(multString[0])
-			dString := intRegex.FindString(multString[0])
-			if fString != "" {
-				f, err := strconv.ParseFloat(fString, 64)
-				if err != nil {
-					fmt.Printf("while parsing float in hasMult: %v\n", err)
-				}
-				dpString := intRegex.FindString(multString[1])
-				fpString := floatRegex.FindString(multString[1])
-				if fpString != "" {
-					fp, err := strconv.ParseFloat(fpString, 64)
-					if err != nil {
-						fmt.Printf("while parsing float in hasMult: %v\n", err)
-					}
-					fmt.Printf("%f\n", math.Pow(f, fp))
-					multResults = append(multResults, f*fp)
-				} else if dpString != "" {
-					dp, err := strconv.ParseFloat(dpString, 64)
-					if err != nil {
-						fmt.Printf("while parsing float in hasMult: %v\n", err)
-					}
-					fmt.Printf("%f\n", math.Pow(f, dp))
-					multResults = append(multResults, f*dp)
-				}
-			} else if dString != "" {
-				d, err := strconv.ParseFloat(dString, 64)
-				if err != nil {
-					fmt.Printf("while parsing float in hasMult: %v\n", err)
-				}
-				dpString := intRegex.FindString(multString[1])
-				fpString := floatRegex.FindString(multString[1])
-				if fpString != "" {
-					fp, err := strconv.ParseFloat(fpString, 64)
-					if err != nil {
-						fmt.Printf("while parsing float in hasMult: %v\n", err)
-					}
-					fmt.Printf("%f\n", d*fp)
-					multResults = append(multResults, d*fp)
-				} else if dpString != "" {
-					dp, err := strconv.ParseFloat(dpString, 64)
-					if err != nil {
-						fmt.Printf("while parsing float in hasMult: %v\n", err)
-					}
-					fmt.Printf("%f\n", d*dp)
-					multResults = append(multResults, d*dp)
-				}
-			}
-		}
-		for i := len(multResults) - 1; i >= 0; i-- {
-			returnString = returnString[:multOpIndex[i][0]] + strconv.FormatFloat(multResults[i], 'f', -1, 64) + returnString[multOpIndex[i][1]:]
-		}
-	}
-	if hasExponent && hasMult && hasDiv && hasAdd && hasSub {
-		fmt.Println("You have a lot of operators.")
+	multOpIndex := multOpRegex.FindAllIndex([]byte(returnString), -1)
+	if multOpIndex != nil {
+		fmt.Println(returnString[multOpIndex[0][0]:multOpIndex[0][1]])
 	}
 	fmt.Println(returnString)
 	return returnString
@@ -245,5 +107,4 @@ func parseArgs(args string) string {
 func main() {
 	// load arguments into variable
 	parseArgsParen(userArgs, true)
-	parseArgs(userArgs)
 }
