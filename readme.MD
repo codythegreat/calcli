@@ -1,8 +1,8 @@
 ## CALCLI
 
-A command line equation parser and solver
+Calcli is a command line equation parser and solver
 
-Calcli currently supports calculations using PEMDAS and square root
+Calcli currently supports calculations using PEMDAS and square root. Equations are also automatically converted to LaTaX format (both inline and display modes.)
 
 ## USAGE
 

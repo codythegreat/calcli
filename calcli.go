@@ -23,7 +23,6 @@ var round = flag.Bool("round", false, "rounds result")
 func parseArgsParen(args string) string {
 	// defile parentheses regex (only finds inner parentheses)
 	parenOpRegex, err := regexp.Compile(`\([^\(\)]+\)`)
-	// old version --> parenOpRegex, err := regexp.Compile(`\(\-?\d+(\.\d+)?((\^|\*|\/|\+|\-)\-?\d+(\.\d+)?)+\)`)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
@@ -39,7 +38,7 @@ func parseSqrt(loc []int, equation string) string {
 	// strip SQRT declaration from equation
 	innerSqrt := equation[loc[0]+5 : loc[1]-1]
 	// if SQRT[] contains other operators, parse their values:
-	match, err := regexp.MatchString(`\(|\)|\^|\*|\/|\+|\-|\[|\]`, innerSqrt)
+	match, err := regexp.MatchString(`\(|\)|\^|\*|\/|\+|\-|\{|\}`, innerSqrt)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
@@ -57,30 +56,39 @@ func parseSqrt(loc []int, equation string) string {
 }
 
 func parsePower(loc []int, equation string) string {
-	// split at ^ to get both digits
-	powerString := strings.Split(equation[loc[0]:loc[1]], "^")
+	// get right side of power
+	rightSide := equation[strings.Index(equation, "{")+1 : loc[1]-1]
+	leftSide := equation[loc[0]:strings.Index(equation, "^")]
+	// if power contains other operators, parse their values:
+	match, err := regexp.MatchString(`\(|\)|\^|\*|\/|\+|\-|\{|\}`, rightSide)
+	if err != nil {
+		fmt.Printf("%v", err)
+	}
+	if match {
+		rightSide = parseArgsParen(rightSide)
+	}
+	// parse rightSide into float
+	rightSideFloat, err := strconv.ParseFloat(rightSide, 64)
+	if err != nil {
+		fmt.Printf("%v", err)
+	}
+	leftSideFloat, err := strconv.ParseFloat(leftSide, 64)
+	if err != nil {
+		fmt.Printf("%v", err)
+	}
 	// parse both digits in equation
-	leftSide, err := strconv.ParseFloat(powerString[0], 64)
-	if err != nil {
-		fmt.Printf("while parsing exponents: %v", err)
-	}
-	rightSide, err := strconv.ParseFloat(powerString[1], 64)
-	if err != nil {
-		fmt.Printf("while parsing exponents: %v", err)
-	}
-	// write the values to the input
-	equation = equation[:loc[0]] + strconv.FormatFloat(math.Pow(leftSide, rightSide), 'f', -1, 64) + equation[loc[1]:]
+	equation = equation[:loc[0]] + strconv.FormatFloat(math.Pow(leftSideFloat, rightSideFloat), 'f', -1, 64) + equation[loc[1]:]
 	return equation
 }
 func parseMult(loc []int, equation string) string {
 	// split at * to get both digits
-	powerString := strings.Split(equation[loc[0]:loc[1]], "*")
+	multString := strings.Split(equation[loc[0]:loc[1]], "*")
 	// parse both digits in equation
-	leftSide, err := strconv.ParseFloat(powerString[0], 64)
+	leftSide, err := strconv.ParseFloat(multString[0], 64)
 	if err != nil {
 		fmt.Printf("while parsing multiplication: %v", err)
 	}
-	rightSide, err := strconv.ParseFloat(powerString[1], 64)
+	rightSide, err := strconv.ParseFloat(multString[1], 64)
 	if err != nil {
 		fmt.Printf("while parsing multiplication: %v", err)
 	}
@@ -90,13 +98,13 @@ func parseMult(loc []int, equation string) string {
 }
 func parseDiv(loc []int, equation string) string {
 	// split at / to get both digits
-	powerString := strings.Split(equation[loc[0]:loc[1]], "/")
+	divString := strings.Split(equation[loc[0]:loc[1]], "/")
 	// parse both digits in equation
-	leftSide, err := strconv.ParseFloat(powerString[0], 64)
+	leftSide, err := strconv.ParseFloat(divString[0], 64)
 	if err != nil {
 		fmt.Printf("while parsing division: %v", err)
 	}
-	rightSide, err := strconv.ParseFloat(powerString[1], 64)
+	rightSide, err := strconv.ParseFloat(divString[1], 64)
 	if err != nil {
 		fmt.Printf("while parsing division: %v", err)
 	}
@@ -106,13 +114,13 @@ func parseDiv(loc []int, equation string) string {
 }
 func parseAdd(loc []int, equation string) string {
 	// split at + to get both digits
-	powerString := strings.Split(equation[loc[0]:loc[1]], "+")
+	addString := strings.Split(equation[loc[0]:loc[1]], "+")
 	// parse both digits in equation
-	leftSide, err := strconv.ParseFloat(powerString[0], 64)
+	leftSide, err := strconv.ParseFloat(addString[0], 64)
 	if err != nil {
 		fmt.Printf("while parsing addition: %v", err)
 	}
-	rightSide, err := strconv.ParseFloat(powerString[1], 64)
+	rightSide, err := strconv.ParseFloat(addString[1], 64)
 	if err != nil {
 		fmt.Printf("while parsing addition: %v", err)
 	}
@@ -122,13 +130,13 @@ func parseAdd(loc []int, equation string) string {
 }
 func parseSub(loc []int, equation string) string {
 	// split at - to get both digits
-	powerString := strings.Split(equation[loc[0]:loc[1]], "-")
+	subString := strings.Split(equation[loc[0]:loc[1]], "-")
 	// parse both digits in equation
-	leftSide, err := strconv.ParseFloat(powerString[0], 64)
+	leftSide, err := strconv.ParseFloat(subString[0], 64)
 	if err != nil {
 		fmt.Printf("while parsing subtraction: %v", err)
 	}
-	rightSide, err := strconv.ParseFloat(powerString[1], 64)
+	rightSide, err := strconv.ParseFloat(subString[1], 64)
 	if err != nil {
 		fmt.Printf("while parsing subtraction: %v", err)
 	}
@@ -158,11 +166,11 @@ func parseArgs(args string) string {
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
-	powerOpRegex, err := regexp.Compile(`\d+(\.\d*)?\^\d+(\.\d*)?`)
+	powerOpRegex, err := regexp.Compile(`\d+(\.\d*)?\^\{?.*\}?`)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
-	sqrtOpRegex, err := regexp.Compile(`SQRT\[\-?\d+(\.\d+)?((\^|\*|\/|\+|\-)\-?\d+(\.\d+)?)*\]`)
+	sqrtOpRegex, err := regexp.Compile(`SQRT\{\-?\d+(\.\d+)?((\^|\*|\/|\+|\-)\-?\d+(\.\d+)?)*\}`)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
@@ -196,11 +204,22 @@ func parseArgs(args string) string {
 	return returnString
 }
 
+func convertToLaTeX(equation string) string {
+	sqrtRegex, err := regexp.Compile(`SQRT`)
+	if err != nil {
+		fmt.Printf("%v", err)
+	}
+	equation = sqrtRegex.ReplaceAllString(equation, "\\sqrt")
+	return equation
+}
+
 func main() {
 	// check os.Args for flags, and set variables
 	flag.Parse()
 	// Print out equation:
 	fmt.Printf("Begining equation: %s\n", userArgs)
+	fmt.Printf("LaTeX inline: $%s$\n", convertToLaTeX(userArgs))
+	fmt.Printf("Latex Display: $$%s$$\n", convertToLaTeX(userArgs))
 	// Print out answer:
 	floatAnswer, err := strconv.ParseFloat(parseArgsParen(userArgs), 64)
 	if err != nil {
