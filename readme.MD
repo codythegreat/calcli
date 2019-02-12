@@ -14,7 +14,7 @@ Calcli can handle any spaces inside of the equation
 
 ```
 ./calcli -ceil "20000*1.1^20"
-./calcli "(3.1415 * 5 ^ 2) + SQRT[7]"
+./calcli "(3.1415 * 5 ^ 2) + SQRT{7}"
 ```
 
 ## INSTALLATION
