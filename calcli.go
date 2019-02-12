@@ -166,11 +166,13 @@ func parseArgs(args string) string {
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
-	powerOpRegex, err := regexp.Compile(`\d+(\.\d*)?\^\{?.*\}?`)
+	// starts from the innermost power in the equation
+	powerOpRegex, err := regexp.Compile(`\d+(\.\d*)?\^\{[^\^]*\}`)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
-	sqrtOpRegex, err := regexp.Compile(`SQRT\{\-?\d+(\.\d+)?((\^|\*|\/|\+|\-)\-?\d+(\.\d+)?)*\}`)
+	// starts from the innermost sqrt in the equation
+	sqrtOpRegex, err := regexp.Compile(`SQRT\{[^SQRT]*\}`)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
@@ -186,8 +188,7 @@ func parseArgs(args string) string {
 	// parse all multiplication in equation
 	for multOpIndex := multOpRegex.FindStringIndex(returnString); multOpIndex != nil; multOpIndex = multOpRegex.FindStringIndex(returnString) {
 		returnString = parseMult(multOpIndex, returnString)
-	}
-	// parse all division in equation
+	} // parse all division in equation
 	for divOpIndex := divOpRegex.FindStringIndex(returnString); divOpIndex != nil; divOpIndex = divOpRegex.FindStringIndex(returnString) {
 		returnString = parseDiv(divOpIndex, returnString)
 	}
