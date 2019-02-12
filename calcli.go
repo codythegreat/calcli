@@ -15,6 +15,7 @@ import (
 var userArgs = regexp.MustCompile(` `).ReplaceAllString(strings.Join(os.Args[len(os.Args)-1:], ""), "")
 
 // define flags
+var abs = flag.Bool("abs", false, "converts return value to abs form")
 var floor = flag.Bool("floor", false, "rounds result down")
 var ceil = flag.Bool("ceil", false, "rounds result up")
 var round = flag.Bool("round", false, "rounds result")
@@ -171,21 +172,20 @@ func main() {
 	// Print out equation:
 	fmt.Printf("Begining equation: %s\n", userArgs)
 	// Print out answer:
-	if *floor || *ceil || *round {
-		floatAnswer, err := strconv.ParseFloat(parseArgsParen(userArgs), 64)
-		if err != nil {
-			fmt.Printf("While handling flags: %v", err)
-		}
-		if *floor {
-			floatAnswer = math.Floor(floatAnswer)
-		} else if *ceil {
-			floatAnswer = math.Ceil(floatAnswer)
-		} else if *round {
-			floatAnswer = math.Round(floatAnswer)
-		}
-		stringAnswer := strconv.FormatFloat(floatAnswer, 'f', -1, 64)
-		fmt.Printf("return value: %v\n", stringAnswer)
-	} else {
+	floatAnswer, err := strconv.ParseFloat(parseArgsParen(userArgs), 64)
+	if err != nil {
+		fmt.Printf("While handling flags: %v", err)
+	}
+	switch {
+	case *floor:
+		fmt.Printf("return value: %v\n", strconv.FormatFloat(math.Floor(floatAnswer), 'f', -1, 64))
+	case *ceil:
+		fmt.Printf("return value: %v\n", strconv.FormatFloat(math.Ceil(floatAnswer), 'f', -1, 64))
+	case *round:
+		fmt.Printf("return value: %v\n", strconv.FormatFloat(math.Round(floatAnswer), 'f', -1, 64))
+	case *abs:
+		fmt.Printf("return value: %v\n", strconv.FormatFloat(math.Abs(floatAnswer), 'f', -1, 64))
+	default:
 		fmt.Printf("return value: %v\n", parseArgsParen(userArgs))
 	}
 }
