@@ -22,7 +22,8 @@ var round = flag.Bool("round", false, "rounds result")
 
 func parseArgsParen(args string) string {
 	// defile parentheses regex (only finds inner parentheses)
-	parenOpRegex, err := regexp.Compile(`\(\-?\d+(\.\d+)?((\^|\*|\/|\+|\-)\-?\d+(\.\d+)?)+\)`)
+	parenOpRegex, err := regexp.Compile(`\([^\(\)]+\)`)
+	// old version --> parenOpRegex, err := regexp.Compile(`\(\-?\d+(\.\d+)?((\^|\*|\/|\+|\-)\-?\d+(\.\d+)?)+\)`)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
@@ -32,6 +33,27 @@ func parseArgsParen(args string) string {
 	}
 	// Once we know that all parentheses are resolved, parse other args and return string answer
 	return parseArgs(args)
+}
+
+func parseSqrt(loc []int, equation string) string {
+	// strip SQRT declaration from equation
+	innerSqrt := equation[loc[0]+5 : loc[1]-1]
+	// if SQRT[] contains other operators, parse their values:
+	match, err := regexp.MatchString(`\(|\)|\^|\*|\/|\+|\-|\[|\]`, innerSqrt)
+	if err != nil {
+		fmt.Printf("%v", err)
+	}
+	if match {
+		innerSqrt = parseArgsParen(innerSqrt)
+	}
+	// if SQRT[] only contains a number, parse it as float
+	sqrtFloat, err := strconv.ParseFloat(innerSqrt, 64)
+	if err != nil {
+		fmt.Printf("%v", err)
+	}
+	// parse both digits in equation
+	equation = equation[:loc[0]] + strconv.FormatFloat(math.Sqrt(sqrtFloat), 'f', -1, 64) + equation[loc[1]:]
+	return equation
 }
 
 func parsePower(loc []int, equation string) string {
@@ -140,7 +162,15 @@ func parseArgs(args string) string {
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
+	sqrtOpRegex, err := regexp.Compile(`SQRT\[\-?\d+(\.\d+)?((\^|\*|\/|\+|\-)\-?\d+(\.\d+)?)*\]`)
+	if err != nil {
+		fmt.Printf("%v", err)
+	}
 
+	// parse all exponents in equation
+	for sqrtOpIndex := sqrtOpRegex.FindStringIndex(returnString); sqrtOpIndex != nil; sqrtOpIndex = sqrtOpRegex.FindStringIndex(returnString) {
+		returnString = parseSqrt(sqrtOpIndex, returnString)
+	}
 	// parse all exponents in equation
 	for powerOpIndex := powerOpRegex.FindStringIndex(returnString); powerOpIndex != nil; powerOpIndex = powerOpRegex.FindStringIndex(returnString) {
 		returnString = parsePower(powerOpIndex, returnString)
