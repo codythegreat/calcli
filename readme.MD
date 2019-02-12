@@ -2,6 +2,8 @@
 
 A command line equation parser and solver
 
+Calcli currently supports calculations using PEMDAS and square root
+
 ## USAGE
 
 Calcli can be used with or without flags -floor, -ceil, -round, and -abs.
@@ -12,7 +14,7 @@ Calcli can handle any spaces inside of the equation
 
 ```
 ./calcli -ceil "20000*1.1^20"
-./calcli "(3.1415*5^2)+7"
+./calcli "(3.1415 * 5 ^ 2) + SQRT[7]"
 ```
 
 ## INSTALLATION
