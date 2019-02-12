@@ -38,7 +38,7 @@ func parseSqrt(loc []int, equation string) string {
 	// strip SQRT declaration from equation
 	innerSqrt := equation[loc[0]+5 : loc[1]-1]
 	// if SQRT[] contains other operators, parse their values:
-	match, err := regexp.MatchString(`\(|\)|\^|\*|\/|\+|\-|\{|\}`, innerSqrt)
+	match, err := regexp.MatchString(`[^\d\.]*`, innerSqrt)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
@@ -60,7 +60,7 @@ func parsePower(loc []int, equation string) string {
 	rightSide := equation[strings.Index(equation, "{")+1 : loc[1]-1]
 	leftSide := equation[loc[0]:strings.Index(equation, "^")]
 	// if power contains other operators, parse their values:
-	match, err := regexp.MatchString(`\(|\)|\^|\*|\/|\+|\-|\{|\}`, rightSide)
+	match, err := regexp.MatchString(`[^\d\.]*`, rightSide)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
@@ -167,23 +167,25 @@ func parseArgs(args string) string {
 		fmt.Printf("%v", err)
 	}
 	// starts from the innermost power in the equation
-	powerOpRegex, err := regexp.Compile(`\d+(\.\d*)?\^\{[^\^]*\}`)
+	powerOpRegex, err := regexp.Compile(`\d+(\.\d*)?\^\{[^\{\}]*\}`)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
 	// starts from the innermost sqrt in the equation
-	sqrtOpRegex, err := regexp.Compile(`SQRT\{[^SQRT]*\}`)
+	sqrtOpRegex, err := regexp.Compile(`SQRT\{[^\{\}]*\}`)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
 
-	// parse all exponents in equation
-	for sqrtOpIndex := sqrtOpRegex.FindStringIndex(returnString); sqrtOpIndex != nil; sqrtOpIndex = sqrtOpRegex.FindStringIndex(returnString) {
-		returnString = parseSqrt(sqrtOpIndex, returnString)
-	}
-	// parse all exponents in equation
-	for powerOpIndex := powerOpRegex.FindStringIndex(returnString); powerOpIndex != nil; powerOpIndex = powerOpRegex.FindStringIndex(returnString) {
-		returnString = parsePower(powerOpIndex, returnString)
+	for b := strings.Contains(returnString, "{"); b != false; b = strings.Contains(returnString, "{") {
+		// parse all sqrt in equation
+		for sqrtOpIndex := sqrtOpRegex.FindStringIndex(returnString); sqrtOpIndex != nil; sqrtOpIndex = sqrtOpRegex.FindStringIndex(returnString) {
+			returnString = parseSqrt(sqrtOpIndex, returnString)
+		}
+		// parse all exponents in equation
+		for powerOpIndex := powerOpRegex.FindStringIndex(returnString); powerOpIndex != nil; powerOpIndex = powerOpRegex.FindStringIndex(returnString) {
+			returnString = parsePower(powerOpIndex, returnString)
+		}
 	}
 	// parse all multiplication in equation
 	for multOpIndex := multOpRegex.FindStringIndex(returnString); multOpIndex != nil; multOpIndex = multOpRegex.FindStringIndex(returnString) {
