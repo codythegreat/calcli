@@ -58,7 +58,8 @@ func parseSqrt(loc []int, equation string) string {
 func parsePower(loc []int, equation string) string {
 	// get right side of power
 	rightSide := equation[strings.Index(equation, "{")+1 : loc[1]-1]
-	leftSide := equation[loc[0]:strings.Index(equation, "^")]
+	leftSide := strings.Split(equation[loc[0]:], "^")[0]
+	// equation[loc[0]:strings.Index(equation, "^")]
 	// if power contains other operators, parse their values:
 	match, err := regexp.MatchString(`[^\d\.]*`, rightSide)
 	if err != nil {
@@ -167,12 +168,12 @@ func parseArgs(args string) string {
 		fmt.Printf("%v", err)
 	}
 	// starts from the innermost power in the equation
-	powerOpRegex, err := regexp.Compile(`\d+(\.\d*)?\^\{[^\{\}]*\}`)
+	powerOpRegex, err := regexp.Compile(`\d+(\.\d+)?\^\{[^\{\}]*\}`)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
 	// starts from the innermost sqrt in the equation
-	sqrtOpRegex, err := regexp.Compile(`SQRT\{[^\{\}]*\}`)
+	sqrtOpRegex, err := regexp.Compile(`SQRT\{[^\{\}]+\}`)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
@@ -220,9 +221,12 @@ func main() {
 	// check os.Args for flags, and set variables
 	flag.Parse()
 	// Print out equation:
-	fmt.Printf("Begining equation: %s\n", userArgs)
-	fmt.Printf("LaTeX inline: $%s$\n", convertToLaTeX(userArgs))
-	fmt.Printf("Latex Display: $$%s$$\n", convertToLaTeX(userArgs))
+	fmt.Printf("\n\n\tEquation:\t%s\n\n", userArgs)
+	// Print out LaTeX translated equation
+	fmt.Printf("\tLaTeX inline:\t$%s$\n\n", convertToLaTeX(userArgs))
+	fmt.Printf("\tLateX Display:\t$$%s$$\n\n", convertToLaTeX(userArgs))
+	// add parentheses so that innermost values are calculated first
+	userArgs = strings.Replace(strings.Replace(userArgs, "{", "{(", -1), "}", ")}", -1)
 	// Print out answer:
 	floatAnswer, err := strconv.ParseFloat(parseArgsParen(userArgs), 64)
 	if err != nil {
@@ -230,14 +234,14 @@ func main() {
 	}
 	switch {
 	case *floor:
-		fmt.Printf("return value: %v\n", strconv.FormatFloat(math.Floor(floatAnswer), 'f', -1, 64))
+		fmt.Printf("\treturn value:\t%v\n\n", strconv.FormatFloat(math.Floor(floatAnswer), 'f', -1, 64))
 	case *ceil:
-		fmt.Printf("return value: %v\n", strconv.FormatFloat(math.Ceil(floatAnswer), 'f', -1, 64))
+		fmt.Printf("\treturn value:\t%v\n\n", strconv.FormatFloat(math.Ceil(floatAnswer), 'f', -1, 64))
 	case *round:
-		fmt.Printf("return value: %v\n", strconv.FormatFloat(math.Round(floatAnswer), 'f', -1, 64))
+		fmt.Printf("\treturn value:\t%v\n\n", strconv.FormatFloat(math.Round(floatAnswer), 'f', -1, 64))
 	case *abs:
-		fmt.Printf("return value: %v\n", strconv.FormatFloat(math.Abs(floatAnswer), 'f', -1, 64))
+		fmt.Printf("\treturn value:\t%v\n\n", strconv.FormatFloat(math.Abs(floatAnswer), 'f', -1, 64))
 	default:
-		fmt.Printf("return value: %v\n", parseArgsParen(userArgs))
+		fmt.Printf("\treturn value:\t%v\n\n", parseArgsParen(userArgs))
 	}
 }
