@@ -21,7 +21,7 @@ var ceil = flag.Bool("ceil", false, "rounds result up")
 var round = flag.Bool("round", false, "rounds result")
 
 func parseArgsParen(args string) string {
-	// defile parentheses regex (only finds inner parentheses)
+	// define parentheses regex (only finds inner parentheses)
 	parenOpRegex, err := regexp.Compile(`\([^\(\)]+\)`)
 	if err != nil {
 		fmt.Printf("%v", err)
@@ -35,9 +35,9 @@ func parseArgsParen(args string) string {
 }
 
 func parseSqrt(loc []int, equation string) string {
-	// strip SQRT declaration from equation
+	// strip sqrt declaration from equation
 	innerSqrt := equation[loc[0]+5 : loc[1]-1]
-	// if SQRT[] contains other operators, parse their values:
+	// if sqrt[] contains other operators, parse their values:
 	match, err := regexp.MatchString(`[^\d\.]*`, innerSqrt)
 	if err != nil {
 		fmt.Printf("%v", err)
@@ -45,13 +45,76 @@ func parseSqrt(loc []int, equation string) string {
 	if match {
 		innerSqrt = parseArgsParen(innerSqrt)
 	}
-	// if SQRT[] only contains a number, parse it as float
+	// if sqrt[] only contains a number, parse it as float
 	sqrtFloat, err := strconv.ParseFloat(innerSqrt, 64)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
 	// parse both digits in equation
 	equation = equation[:loc[0]] + strconv.FormatFloat(math.Sqrt(sqrtFloat), 'f', -1, 64) + equation[loc[1]:]
+	return equation
+}
+
+func parseSin(loc []int, equation string) string {
+	// strip sqrt declaration from equation
+	innerSin := equation[loc[0]+4 : loc[1]-1]
+	// if sqrt[] contains other operators, parse their values:
+	match, err := regexp.MatchString(`[^\d\.]*`, innerSin)
+	if err != nil {
+		fmt.Printf("%v", err)
+	}
+	if match {
+		innerSin = parseArgsParen(innerSin)
+	}
+	// if sqrt[] only contains a number, parse it as float
+	sinFloat, err := strconv.ParseFloat(innerSin, 64)
+	if err != nil {
+		fmt.Printf("%v", err)
+	}
+	// parse both digits in equation
+	equation = equation[:loc[0]] + strconv.FormatFloat(math.Sin(sinFloat), 'f', -1, 64) + equation[loc[1]:]
+	return equation
+}
+
+func parseCos(loc []int, equation string) string {
+	// strip sqrt declaration from equation
+	innerCos := equation[loc[0]+4 : loc[1]-1]
+	// if sqrt[] contains other operators, parse their values:
+	match, err := regexp.MatchString(`[^\d\.]*`, innerCos)
+	if err != nil {
+		fmt.Printf("%v", err)
+	}
+	if match {
+		innerCos = parseArgsParen(innerCos)
+	}
+	// if sqrt[] only contains a number, parse it as float
+	cosFloat, err := strconv.ParseFloat(innerCos, 64)
+	if err != nil {
+		fmt.Printf("%v", err)
+	}
+	// parse both digits in equation
+	equation = equation[:loc[0]] + strconv.FormatFloat(math.Cos(cosFloat), 'f', -1, 64) + equation[loc[1]:]
+	return equation
+}
+
+func parseTan(loc []int, equation string) string {
+	// strip sqrt declaration from equation
+	innerTan := equation[loc[0]+4 : loc[1]-1]
+	// if sqrt[] contains other operators, parse their values:
+	match, err := regexp.MatchString(`[^\d\.]*`, innerTan)
+	if err != nil {
+		fmt.Printf("%v", err)
+	}
+	if match {
+		innerTan = parseArgsParen(innerTan)
+	}
+	// if sqrt[] only contains a number, parse it as float
+	tanFloat, err := strconv.ParseFloat(innerTan, 64)
+	if err != nil {
+		fmt.Printf("%v", err)
+	}
+	// parse both digits in equation
+	equation = equation[:loc[0]] + strconv.FormatFloat(math.Tan(tanFloat), 'f', -1, 64) + equation[loc[1]:]
 	return equation
 }
 
@@ -81,6 +144,7 @@ func parsePower(loc []int, equation string) string {
 	equation = equation[:loc[0]] + strconv.FormatFloat(math.Pow(leftSideFloat, rightSideFloat), 'f', -1, 64) + equation[loc[1]:]
 	return equation
 }
+
 func parseMult(loc []int, equation string) string {
 	// split at * to get both digits
 	multString := strings.Split(equation[loc[0]:loc[1]], "*")
@@ -97,6 +161,7 @@ func parseMult(loc []int, equation string) string {
 	equation = equation[:loc[0]] + strconv.FormatFloat(leftSide*rightSide, 'f', -1, 64) + equation[loc[1]:]
 	return equation
 }
+
 func parseDiv(loc []int, equation string) string {
 	// split at / to get both digits
 	divString := strings.Split(equation[loc[0]:loc[1]], "/")
@@ -113,6 +178,7 @@ func parseDiv(loc []int, equation string) string {
 	equation = equation[:loc[0]] + strconv.FormatFloat(leftSide/rightSide, 'f', -1, 64) + equation[loc[1]:]
 	return equation
 }
+
 func parseAdd(loc []int, equation string) string {
 	// split at + to get both digits
 	addString := strings.Split(equation[loc[0]:loc[1]], "+")
@@ -129,6 +195,7 @@ func parseAdd(loc []int, equation string) string {
 	equation = equation[:loc[0]] + strconv.FormatFloat(leftSide+rightSide, 'f', -1, 64) + equation[loc[1]:]
 	return equation
 }
+
 func parseSub(loc []int, equation string) string {
 	// split at - to get both digits
 	subString := strings.Split(equation[loc[0]:loc[1]], "-")
@@ -151,29 +218,44 @@ func parseArgs(args string) string {
 	returnString := args
 
 	// regular expressions to interpret user input:
-	addOpRegex, err := regexp.Compile(`\d+(\.\d*)?\+\d+(\.\d*)?`)
+	addOpRegex, err := regexp.Compile(`\-?\d+(\.\d*)?\+\-?\d+(\.\d*)?`)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
-	subOpRegex, err := regexp.Compile(`\d+(\.\d*)?\-\d+(\.\d*)?`)
+	subOpRegex, err := regexp.Compile(`\-?\d+(\.\d*)?\-\-?\d+(\.\d*)?`)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
-	multOpRegex, err := regexp.Compile(`\d+(\.\d*)?\*\d+(\.\d*)?`)
+	multOpRegex, err := regexp.Compile(`\-?\d+(\.\d*)?\*\-?\d+(\.\d*)?`)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
-	divOpRegex, err := regexp.Compile(`\d+(\.\d*)?/\d+(\.\d*)?`)
+	divOpRegex, err := regexp.Compile(`\-?\d+(\.\d*)?/\-?\d+(\.\d*)?`)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
 	// starts from the innermost power in the equation
-	powerOpRegex, err := regexp.Compile(`\d+(\.\d+)?\^\{[^\{\}]*\}`)
+	powerOpRegex, err := regexp.Compile(`\-?\d+(\.\d+)?\^\{[^\{\}]*\}`)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
 	// starts from the innermost sqrt in the equation
-	sqrtOpRegex, err := regexp.Compile(`SQRT\{[^\{\}]+\}`)
+	sqrtOpRegex, err := regexp.Compile(`sqrt\{[^\{\}]+\}`)
+	if err != nil {
+		fmt.Printf("%v", err)
+	}
+	// starts from the innermost sin in the equation
+	sinOpRegex, err := regexp.Compile(`sin\{[^\{\}]+\}`)
+	if err != nil {
+		fmt.Printf("%v", err)
+	}
+	// starts from the innermost cos in the equation
+	cosOpRegex, err := regexp.Compile(`cos\{[^\{\}]+\}`)
+	if err != nil {
+		fmt.Printf("%v", err)
+	}
+	// starts from the innermost tan in the equation
+	tanOpRegex, err := regexp.Compile(`tan\{[^\{\}]+\}`)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
@@ -186,6 +268,18 @@ func parseArgs(args string) string {
 		// parse all exponents in equation
 		for powerOpIndex := powerOpRegex.FindStringIndex(returnString); powerOpIndex != nil; powerOpIndex = powerOpRegex.FindStringIndex(returnString) {
 			returnString = parsePower(powerOpIndex, returnString)
+		}
+		// parse all sin in equation
+		for sinOpIndex := sinOpRegex.FindStringIndex(returnString); sinOpIndex != nil; sinOpIndex = sinOpRegex.FindStringIndex(returnString) {
+			returnString = parseSin(sinOpIndex, returnString)
+		}
+		// parse all cos in equation
+		for cosOpIndex := cosOpRegex.FindStringIndex(returnString); cosOpIndex != nil; cosOpIndex = cosOpRegex.FindStringIndex(returnString) {
+			returnString = parseCos(cosOpIndex, returnString)
+		}
+		// parse all tan in equation
+		for tanOpIndex := tanOpRegex.FindStringIndex(returnString); tanOpIndex != nil; tanOpIndex = tanOpRegex.FindStringIndex(returnString) {
+			returnString = parseTan(tanOpIndex, returnString)
 		}
 	}
 	// parse all multiplication in equation
@@ -209,11 +303,35 @@ func parseArgs(args string) string {
 }
 
 func convertToLaTeX(equation string) string {
-	sqrtRegex, err := regexp.Compile(`SQRT`)
+	sqrtRegex, err := regexp.Compile(`sqrt`)
+	if err != nil {
+		fmt.Printf("%v", err)
+	}
+	sinRegex, err := regexp.Compile(`sin\{.*\}`)
+	if err != nil {
+		fmt.Printf("%v", err)
+	}
+	cosRegex, err := regexp.Compile(`cos\{.*\}`)
+	if err != nil {
+		fmt.Printf("%v", err)
+	}
+	tanRegex, err := regexp.Compile(`tan\{.*\}`)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
 	equation = sqrtRegex.ReplaceAllString(equation, "\\sqrt")
+	for _, index := range sinRegex.FindAllStringIndex(equation, -1) {
+		convertedString := "\\" + strings.Replace(strings.Replace(equation[index[0]:index[1]], "{", " ", -1), "}", " ", -1)
+		equation = equation[:index[0]] + convertedString + equation[index[1]:]
+	}
+	for _, index := range cosRegex.FindAllStringIndex(equation, -1) {
+		convertedString := "\\" + strings.Replace(strings.Replace(equation[index[0]:index[1]], "{", " ", -1), "}", " ", -1)
+		equation = equation[:index[0]] + convertedString + equation[index[1]:]
+	}
+	for _, index := range tanRegex.FindAllStringIndex(equation, -1) {
+		convertedString := "\\" + strings.Replace(strings.Replace(equation[index[0]:index[1]], "{", " ", -1), "}", " ", -1)
+		equation = equation[:index[0]] + convertedString + equation[index[1]:]
+	}
 	return equation
 }
 
