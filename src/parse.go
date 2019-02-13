@@ -3,6 +3,7 @@ package calclisrc
 
 import (
 	"regexp"
+	"strings"
 )
 
 func parseArgs(args string) string {
@@ -10,10 +11,12 @@ func parseArgs(args string) string {
 	returnString := args
 
 	// regular expressions to interpret user input:
+	// simple operations:
 	addOpRegex := regexp.MustCompile(`\-?\d+(\.\d*)?\+\-?\d+(\.\d*)?`)
 	subOpRegex := regexp.MustCompile(`\-?\d+(\.\d*)?\-\-?\d+(\.\d*)?`)
 	multOpRegex := regexp.MustCompile(`\-?\d+(\.\d*)?\*\-?\d+(\.\d*)?`)
 	divOpRegex := regexp.MustCompile(`\-?\d+(\.\d*)?/\-?\d+(\.\d*)?`)
+	// advanced operations:
 	// starts from the innermost power in the equation
 	powerOpRegex := regexp.MustCompile(`\-?\d+(\.\d+)?\^\{[^\{\}]*\}`)
 	// starts from the innermost sqrt in the equation
