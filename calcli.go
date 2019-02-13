@@ -307,15 +307,15 @@ func convertToLaTeX(equation string) string {
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
-	sinRegex, err := regexp.Compile(`sin\{.*\}`)
+	sinRegex, err := regexp.Compile(`sin\{[^\}]*\}`)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
-	cosRegex, err := regexp.Compile(`cos\{.*\}`)
+	cosRegex, err := regexp.Compile(`cos\{[^\}]*\}`)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
-	tanRegex, err := regexp.Compile(`tan\{.*\}`)
+	tanRegex, err := regexp.Compile(`tan\{[^\}]*\}`)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
