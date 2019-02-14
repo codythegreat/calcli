@@ -6,6 +6,7 @@ import (
 	"math"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 func parseSin(loc []int, equation string) string {
@@ -17,7 +18,7 @@ func parseSin(loc []int, equation string) string {
 		fmt.Printf("%v", err)
 	}
 	if match {
-		innerSin = parseArgsParen(innerSin)
+		innerSin = ParseArgsParen(innerSin)
 	}
 	// if sqrt[] only contains a number, parse it as float
 	sinFloat, err := strconv.ParseFloat(innerSin, 64)
@@ -37,7 +38,7 @@ func parseTan(loc []int, equation string) string {
 		fmt.Printf("%v", err)
 	}
 	if match {
-		innerTan = parseArgsParen(innerTan)
+		innerTan = ParseArgsParen(innerTan)
 	}
 	// if sqrt[] only contains a number, parse it as float
 	tanFloat, err := strconv.ParseFloat(innerTan, 64)
@@ -57,7 +58,7 @@ func parseCos(loc []int, equation string) string {
 		fmt.Printf("%v", err)
 	}
 	if match {
-		innerCos = parseArgsParen(innerCos)
+		innerCos = ParseArgsParen(innerCos)
 	}
 	// if sqrt[] only contains a number, parse it as float
 	cosFloat, err := strconv.ParseFloat(innerCos, 64)
@@ -79,7 +80,7 @@ func parsePower(loc []int, equation string) string {
 		fmt.Printf("%v", err)
 	}
 	if match {
-		rightSide = parseArgsParen(rightSide)
+		rightSide = ParseArgsParen(rightSide)
 	}
 	// parse rightSide into float
 	rightSideFloat, err := strconv.ParseFloat(rightSide, 64)
@@ -103,7 +104,7 @@ func parseSqrt(loc []int, equation string) string {
 		fmt.Printf("%v", err)
 	}
 	if match {
-		innerSqrt = parseArgsParen(innerSqrt)
+		innerSqrt = ParseArgsParen(innerSqrt)
 	}
 	// if sqrt[] only contains a number, parse it as float
 	sqrtFloat, err := strconv.ParseFloat(innerSqrt, 64)
