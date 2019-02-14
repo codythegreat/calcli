@@ -2,29 +2,31 @@
 package calclisrc
 
 import (
-	"fmt"
 	"regexp"
-	"strings"
 )
 
 func ConvertToLaTeX(equation string) string {
+	// add extra space to front/end to avoid index out of range
 	// define regular expression for input that needs to change
-	sqrtRegex, err := regexp.Compile(`sqrt`)
-	if err != nil {
-		fmt.Printf("%v", err)
-	}
-	sinCosTanRegex, err := regexp.Compile(`(sin|cos|tan)\{[^\{\}]*\}`)
-	if err != nil {
-		fmt.Printf("%v", err)
-	}
-	// for sqrt, simply add a \ character before declaration
-	equation = sqrtRegex.ReplaceAllString(equation, "\\sqrt")
-	// for sin, cos, and tan: start from inner function, add \ character and replace { } with spaces
-	for b := sinCosTanRegex.MatchString(equation); b != false; b = sinCosTanRegex.MatchString(equation) {
-		for sinCosTanIndex := sinCosTanRegex.FindStringIndex(equation); sinCosTanIndex != nil; sinCosTanIndex = sinCosTanRegex.FindStringIndex(equation) {
-			convertedString := "\\" + strings.Replace(strings.Replace(equation[sinCosTanIndex[0]:sinCosTanIndex[1]], "{", " ", -1), "}", " ", -1)
-			equation = equation[:sinCosTanIndex[0]] + convertedString + equation[sinCosTanIndex[1]:]
+	// for the above regex, simply add a \ character before declaration
+	// sin, cos and tan must not have braces
+	var bracesToChange []bool
+	for _, braceLoc := range regexp.MustCompile(`\{`).FindAllStringIndex(equation, -1) {
+		if string(equation[braceLoc[0]-1]) != "t" && string(equation[braceLoc[0]-1]) != "^" {
+			bracesToChange = append(bracesToChange, true)
+			equation = equation[:braceLoc[0]] + " " + equation[braceLoc[1]:]
+		} else {
+			bracesToChange = append(bracesToChange, false)
 		}
+	}
+	for i, braceLoc := range regexp.MustCompile(`\}`).FindAllStringIndex(equation, -1) {
+		if bracesToChange[i] == true {
+			equation = equation[:braceLoc[0]] + " " + equation[braceLoc[1]:]
+		}
+	}
+	sqSinCosTanRegex := regexp.MustCompile(`(sqrt|sin|cos|tan)`)
+	for loc := sqSinCosTanRegex.FindStringIndex(equation); loc != nil; loc = sqSinCosTanRegex.FindStringIndex(equation) {
+		equation = equation[:loc[0]] + "\\" + equation[loc[0]:]
 	}
 	// return the formatted equation
 	return equation
