@@ -57,8 +57,15 @@ func parseAdd(loc []int, equation string) string {
 	return equation
 }
 func parseSub(loc []int, equation string) string {
-	// split at - to get both digits
-	subString := strings.Split(equation[loc[0]:loc[1]], "-")
+	// check to see if first number is negative. split at the minus sign.
+	countMinus := strings.Count(equation, "-")
+	var subString []string
+	if countMinus > 1 {
+		subString = strings.Split(equation[loc[0]+1:loc[1]], "-")
+		subString[0] = "-" + subString[0]
+	} else {
+		subString = strings.Split(equation[loc[0]:loc[1]], "-")
+	}
 	// parse both digits in equation
 	leftSide, err := strconv.ParseFloat(subString[0], 64)
 	if err != nil {
