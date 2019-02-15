@@ -6,27 +6,20 @@ import (
 )
 
 func ConvertToLaTeX(equation string) string {
-	// add extra space to front/end to avoid index out of range
-	// define regular expression for input that needs to change
-	// for the above regex, simply add a \ character before declaration
-	// sin, cos and tan must not have braces
-	var bracesToChange []bool
-	for _, braceLoc := range regexp.MustCompile(`\{`).FindAllStringIndex(equation, -1) {
+	// find all left and right braces in equation
+	braceLocLeft := regexp.MustCompile(`\{`).FindAllStringIndex(equation, -1)
+	braceLocRight := regexp.MustCompile(`\}`).FindAllStringIndex(equation, -1)
+	// Loop over braces. replace pairs with spaces if they are not sqrt or powers
+	for i, braceLoc := range braceLocLeft {
 		if string(equation[braceLoc[0]-1]) != "t" && string(equation[braceLoc[0]-1]) != "^" {
-			bracesToChange = append(bracesToChange, true)
 			equation = equation[:braceLoc[0]] + " " + equation[braceLoc[1]:]
-		} else {
-			bracesToChange = append(bracesToChange, false)
+			equation = equation[:braceLocRight[i][0]] + " " + equation[braceLocRight[i][1]:]
 		}
 	}
-	for i, braceLoc := range regexp.MustCompile(`\}`).FindAllStringIndex(equation, -1) {
-		if bracesToChange[i] == true {
-			equation = equation[:braceLoc[0]] + " " + equation[braceLoc[1]:]
-		}
-	}
-	sqSinCosTanRegex := regexp.MustCompile(`(sqrt|sin|cos|tan)`)
+	// find operators that don't have a leading \ character. add the character
+	sqSinCosTanRegex := regexp.MustCompile(`([^\\]{1}(sqrt|sin|cos|tan))`)
 	for loc := sqSinCosTanRegex.FindStringIndex(equation); loc != nil; loc = sqSinCosTanRegex.FindStringIndex(equation) {
-		equation = equation[:loc[0]] + "\\" + equation[loc[0]:]
+		equation = equation[:loc[0]+1] + "\\" + equation[loc[0]+1:]
 	}
 	// return the formatted equation
 	return equation
