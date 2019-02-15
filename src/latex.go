@@ -6,6 +6,8 @@ import (
 )
 
 func ConvertToLaTeX(equation string) string {
+	// pad the equation with parentheses for \\ regex to work correctly
+	equation = "(" + equation + ")"
 	// find all left and right braces in equation
 	braceLocLeft := regexp.MustCompile(`\{`).FindAllStringIndex(equation, -1)
 	braceLocRight := regexp.MustCompile(`\}`).FindAllStringIndex(equation, -1)
@@ -21,6 +23,6 @@ func ConvertToLaTeX(equation string) string {
 	for loc := sqSinCosTanRegex.FindStringIndex(equation); loc != nil; loc = sqSinCosTanRegex.FindStringIndex(equation) {
 		equation = equation[:loc[0]+1] + "\\" + equation[loc[0]+1:]
 	}
-	// return the formatted equation
-	return equation
+	// return the formatted equation with parentheses removed
+	return equation[1 : len(equation)-1]
 }
