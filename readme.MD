@@ -39,3 +39,6 @@ I recommend storing the executable in your home directory so that you can do thi
 ~/calcli "(2+2)^3"
 ```
 
+## CONTRIBUTORS
+
+Myself and [alexruf](https://github.com/alexruf)
