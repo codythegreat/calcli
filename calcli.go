@@ -20,32 +20,54 @@ var abs = flag.Bool("abs", false, "converts return value to abs form")
 var floor = flag.Bool("floor", false, "rounds result down")
 var ceil = flag.Bool("ceil", false, "rounds result up")
 var round = flag.Bool("round", false, "rounds result")
+var latexI = flag.Bool("latexI", false, "Only prints LaTeX Inline formatting")
+var latexD = flag.Bool("latexD", false, "Only prints LaTeX Display formatting")
 
 func main() {
 	// check os.Args for flags, and set variables
 	flag.Parse()
+	// if latexI/D, simply print and quit
+	// else print the result for given flag
+	switch {
+	case *latexI:
+		fmt.Printf("$%s$\n", calclisrc.ConvertToLaTeX(userArgs))
+	case *latexD:
+		fmt.Printf("$$%s$$\n", calclisrc.ConvertToLaTeX(userArgs))
+	case *floor:
+		printEquation()
+		userArgs = strings.Replace(strings.Replace(userArgs, "{", "{(", -1), "}", ")}", -1)
+		fmt.Printf("\treturn value:\t%v\n\n", strconv.FormatFloat(math.Floor(solveEquationFloat()), 'f', -1, 64))
+	case *ceil:
+		printEquation()
+		userArgs = strings.Replace(strings.Replace(userArgs, "{", "{(", -1), "}", ")}", -1)
+		fmt.Printf("\treturn value:\t%v\n\n", strconv.FormatFloat(math.Ceil(solveEquationFloat()), 'f', -1, 64))
+	case *round:
+		printEquation()
+		userArgs = strings.Replace(strings.Replace(userArgs, "{", "{(", -1), "}", ")}", -1)
+		fmt.Printf("\treturn value:\t%v\n\n", strconv.FormatFloat(math.Round(solveEquationFloat()), 'f', -1, 64))
+	case *abs:
+		printEquation()
+		userArgs = strings.Replace(strings.Replace(userArgs, "{", "{(", -1), "}", ")}", -1)
+		fmt.Printf("\treturn value:\t%v\n\n", strconv.FormatFloat(math.Abs(solveEquationFloat()), 'f', -1, 64))
+	default:
+		printEquation()
+		userArgs = strings.Replace(strings.Replace(userArgs, "{", "{(", -1), "}", ")}", -1)
+		fmt.Printf("\treturn value:\t%v\n\n", strconv.FormatFloat(solveEquationFloat(), 'f', -1, 64))
+	}
+}
+
+func printEquation() {
 	// Print out equation:
 	fmt.Printf("\n\n\tEquation:\t%s\n\n", userArgs)
 	// Print out LaTeX translated equation
 	fmt.Printf("\tLaTeX inline:\t$%s$\n\n", calclisrc.ConvertToLaTeX(userArgs))
 	fmt.Printf("\tLateX Display:\t$$%s$$\n\n", calclisrc.ConvertToLaTeX(userArgs))
-	// add parentheses so that innermost values are calculated first
-	userArgs = strings.Replace(strings.Replace(userArgs, "{", "{(", -1), "}", ")}", -1)
-	// Print out answer:
+}
+
+func solveEquationFloat() float64 {
 	floatAnswer, err := strconv.ParseFloat(calclisrc.ParseArgsParen(userArgs), 64)
 	if err != nil {
 		fmt.Printf("While handling flags: %v", err)
 	}
-	switch {
-	case *floor:
-		fmt.Printf("\treturn value:\t%v\n\n", strconv.FormatFloat(math.Floor(floatAnswer), 'f', -1, 64))
-	case *ceil:
-		fmt.Printf("\treturn value:\t%v\n\n", strconv.FormatFloat(math.Ceil(floatAnswer), 'f', -1, 64))
-	case *round:
-		fmt.Printf("\treturn value:\t%v\n\n", strconv.FormatFloat(math.Round(floatAnswer), 'f', -1, 64))
-	case *abs:
-		fmt.Printf("\treturn value:\t%v\n\n", strconv.FormatFloat(math.Abs(floatAnswer), 'f', -1, 64))
-	default:
-		fmt.Printf("\treturn value:\t%v\n\n", calclisrc.ParseArgsParen(userArgs))
-	}
+	return floatAnswer
 }
