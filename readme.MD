@@ -12,8 +12,6 @@ Calcli can be used with or without flags -floor, -ceil, -round, -abs, latexI and
 
 Currently you can only use one flag at a time.
 
-Calcli can handle any spaces inside of the equation
-
 ```
 ./calcli -ceil "20000*1.1^20"
 ./calcli "(3.1415 * 5 ^ {2}) + sqrt{7}"
