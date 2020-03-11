@@ -14,7 +14,7 @@ Currently you can only use one flag at a time.
 
 ```
 ./calcli -ceil "20000*1.1^20"
-./calcli "(3.1415 * 5 ^ {2}) + sqrt{7}"
+./calcli "(3.1415*5^{2})+sqrt{7}"
 ```
 
 Note the following syntax used by Calcli:
