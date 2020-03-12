@@ -12,8 +12,7 @@ import (
 	"strings"
 )
 
-// grab equation and strip all spaces out of it
-var userArgs = regexp.MustCompile(` `).ReplaceAllString(strings.Join(os.Args[len(os.Args)-1:], ""), "")
+var userArgs string
 
 // define flags
 var abs = flag.Bool("abs", false, "converts return value to abs form")
@@ -26,6 +25,27 @@ var latexD = flag.Bool("latexD", false, "Only prints LaTeX Display formatting")
 func main() {
 	// check os.Args for flags, and set variables
 	flag.Parse()
+
+	// strip os.Args for just equation
+	if os.Args[1][:1] == "-" {
+		userArgs = regexp.MustCompile(` `).ReplaceAllString(strings.Join(os.Args[2:len(os.Args)], ""), "")
+	} else {
+		userArgs = regexp.MustCompile(` `).ReplaceAllString(strings.Join(os.Args[1:len(os.Args)], ""), "")
+	}
+
+	// strip all spaces out of equation
+	if os.Args[1][:1] == "-" {
+		userArgs = regexp.MustCompile(` `).ReplaceAllString(strings.Join(os.Args[2:len(os.Args)], ""), "")
+	} else {
+		userArgs = regexp.MustCompile(` `).ReplaceAllString(strings.Join(os.Args[1:len(os.Args)], ""), "")
+	}
+
+	// if bad input, break
+	if calclisrc.DetectInputError(userArgs) {
+		fmt.Println("Error: Missing curly brackets '{}' on one or more operators")
+		os.Exit(1)
+	}
+
 	// if latexI/D, simply print and quit
 	// else print the result for given flag
 	switch {
