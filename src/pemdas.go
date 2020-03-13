@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"math"
 )
 
 func parseMult(loc []int, equation string) string {
@@ -21,6 +22,10 @@ func parseMult(loc []int, equation string) string {
 		fmt.Printf("while parsing multiplication: %v", err)
 	}
 	// write the values to the input
+	if leftSide < 0 && rightSide < 0 {
+		equation = equation[:loc[0]] + "-" + strconv.FormatFloat(math.Abs(leftSide*rightSide), 'f', -1, 64) + equation[loc[1]:]
+		return equation
+	}
 	equation = equation[:loc[0]] + strconv.FormatFloat(leftSide*rightSide, 'f', -1, 64) + equation[loc[1]:]
 	return equation
 }
