@@ -23,6 +23,11 @@ var latexI = flag.Bool("latexI", false, "Only prints LaTeX Inline formatting")
 var latexD = flag.Bool("latexD", false, "Only prints LaTeX Display formatting")
 
 func main() {
+	// if os.Args missing equation, return error
+	if len(os.Args) == 1 {
+		fmt.Println("Please input an equation")
+		os.Exit(1)
+	}
 	// check os.Args for flags, and set variables
 	flag.Parse()
 
