@@ -31,6 +31,13 @@ func main() {
 	// strip os.Args for just equation
 	userArgs = calclisrc.RemoveSpacesFromEquation(os.Args)
 
+	// make sure that the equation uses proper syntax
+	if !calclisrc.VerifyEquationHasProperSyntax(userArgs) {
+		fmt.Println("Error: improper syntax found within equation")
+		//TODO: print out a list of proper syntax
+		os.Exit(1)
+	}
+
 	// if equation has improper curly brackets, break
 	if calclisrc.VerifyEquationHasProperBrackets(userArgs) {
 		fmt.Println("Error: Missing curly brackets '{}' on one or more operators")
