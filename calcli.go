@@ -7,7 +7,6 @@ import (
 	"github.com/codythegreat/calcli/src"
 	"math"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 )
@@ -28,22 +27,18 @@ func main() {
 		fmt.Println("Please input an equation")
 		os.Exit(1)
 	}
-
+	//TODO: handle negative sign at start of equation
 	// strip os.Args for just equation
-	if os.Args[1][:1] == "-" {
-		userArgs = regexp.MustCompile(` `).ReplaceAllString(strings.Join(os.Args[2:len(os.Args)], ""), "")
-	} else {
-		userArgs = regexp.MustCompile(` `).ReplaceAllString(strings.Join(os.Args[1:len(os.Args)], ""), "")
+	userArgs = calclisrc.RemoveSpacesFromEquation(os.Args)
+
+	// removed equation from os.Args
+	for i := 2; i < len(os.Args); i++ {
+		os.Args[i] = ""
 	}
 
 	// check os.Args for flags, and set variables
-	flag.Parse()
-
-	// strip all spaces out of equation
-	if os.Args[1][:1] == "-" {
-		userArgs = regexp.MustCompile(` `).ReplaceAllString(strings.Join(os.Args[2:len(os.Args)], ""), "")
-	} else {
-		userArgs = regexp.MustCompile(` `).ReplaceAllString(strings.Join(os.Args[1:len(os.Args)], ""), "")
+	if len(os.Args) > 2 {
+		flag.Parse()
 	}
 
 	// if bad input, break
