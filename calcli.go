@@ -24,12 +24,10 @@ var latexD = flag.Bool("latexD", false, "Only prints LaTeX Display formatting")
 
 func main() {
 	// if os.Args missing equation, return error
-	if len(os.Args) == 1 {
+	if !calclisrc.VerifyInputHasEquation(len(os.Args)) {
 		fmt.Println("Please input an equation")
 		os.Exit(1)
 	}
-	// check os.Args for flags, and set variables
-	flag.Parse()
 
 	// strip os.Args for just equation
 	if os.Args[1][:1] == "-" {
@@ -37,6 +35,9 @@ func main() {
 	} else {
 		userArgs = regexp.MustCompile(` `).ReplaceAllString(strings.Join(os.Args[1:len(os.Args)], ""), "")
 	}
+
+	// check os.Args for flags, and set variables
+	flag.Parse()
 
 	// strip all spaces out of equation
 	if os.Args[1][:1] == "-" {
@@ -46,7 +47,7 @@ func main() {
 	}
 
 	// if bad input, break
-	if calclisrc.DetectInputError(userArgs) {
+	if calclisrc.VerifyEquationHasProperBrackets(userArgs) {
 		fmt.Println("Error: Missing curly brackets '{}' on one or more operators")
 		os.Exit(1)
 	}
