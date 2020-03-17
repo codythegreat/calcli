@@ -39,7 +39,7 @@ func main() {
 	}
 
 	// if equation has improper curly brackets, break
-	if calclisrc.VerifyEquationHasProperBrackets(userArgs) {
+	if !calclisrc.VerifyEquationHasProperBrackets(userArgs) {
 		fmt.Println("Error: Missing curly brackets '{}' on one or more operators")
 		os.Exit(1)
 	}
