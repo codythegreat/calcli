@@ -27,9 +27,15 @@ func main() {
 		fmt.Println("Please input an equation")
 		os.Exit(1)
 	}
-	//TODO: handle negative sign at start of equation
+
 	// strip os.Args for just equation
 	userArgs = calclisrc.RemoveSpacesFromEquation(os.Args)
+
+	// if equation has improper curly brackets, break
+	if calclisrc.VerifyEquationHasProperBrackets(userArgs) {
+		fmt.Println("Error: Missing curly brackets '{}' on one or more operators")
+		os.Exit(1)
+	}
 
 	// removed equation from os.Args
 	for i := 2; i < len(os.Args); i++ {
@@ -39,12 +45,6 @@ func main() {
 	// check os.Args for flags, and set variables
 	if len(os.Args) > 2 {
 		flag.Parse()
-	}
-
-	// if bad input, break
-	if calclisrc.VerifyEquationHasProperBrackets(userArgs) {
-		fmt.Println("Error: Missing curly brackets '{}' on one or more operators")
-		os.Exit(1)
 	}
 
 	// if latexI/D, simply print and quit
