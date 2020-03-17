@@ -19,5 +19,5 @@ func VerifyInputHasEquation(args int) bool {
 }
 
 func VerifyEquationHasProperBrackets(equation string) bool {
-	return regexp.MustCompile(`(\^|sqrt|sin|cos|tan)[^\{]`).FindIndex([]byte(equation)) != nil || strings.Count(equation, "{") != strings.Count(equation, "}")
+	return !regexp.MustCompile(`(\^|sqrt|sin|cos|tan)[^\{]`).MatchString(equation) && strings.Count(equation, "{") == strings.Count(equation, "}")
 }
