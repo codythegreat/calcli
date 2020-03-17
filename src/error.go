@@ -1,4 +1,4 @@
-// input verification functions. If these return true main will handle the error
+// input verification functions. If these return false main will handle the error
 package calclisrc
 
 import (
