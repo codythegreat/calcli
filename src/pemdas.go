@@ -4,12 +4,12 @@ package calclisrc
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
-	"math"
 )
 
-func parseMult(loc []int, equation string) string {
+func parseMult(loc []int, equation string, debug bool) string {
 	// split at * to get both digits
 	multString := strings.Split(equation[loc[0]:loc[1]], "*")
 	// parse both digits in equation
@@ -29,7 +29,7 @@ func parseMult(loc []int, equation string) string {
 	equation = equation[:loc[0]] + strconv.FormatFloat(leftSide*rightSide, 'f', -1, 64) + equation[loc[1]:]
 	return equation
 }
-func parseDiv(loc []int, equation string) string {
+func parseDiv(loc []int, equation string, debug bool) string {
 	// split at / to get both digits
 	divString := strings.Split(equation[loc[0]:loc[1]], "/")
 	// parse both digits in equation
@@ -45,7 +45,7 @@ func parseDiv(loc []int, equation string) string {
 	equation = equation[:loc[0]] + strconv.FormatFloat(leftSide/rightSide, 'f', -1, 64) + equation[loc[1]:]
 	return equation
 }
-func parseAdd(loc []int, equation string) string {
+func parseAdd(loc []int, equation string, debug bool) string {
 	// split at + to get both digits
 	addString := strings.Split(equation[loc[0]:loc[1]], "+")
 	// parse both digits in equation
@@ -61,7 +61,7 @@ func parseAdd(loc []int, equation string) string {
 	equation = equation[:loc[0]] + strconv.FormatFloat(leftSide+rightSide, 'f', -1, 64) + equation[loc[1]:]
 	return equation
 }
-func parseSub(loc []int, equation string) string {
+func parseSub(loc []int, equation string, debug bool) string {
 	// check to see if first number is negative. split at the minus sign.
 	countMinus := strings.Count(equation, "-")
 	var subString []string
