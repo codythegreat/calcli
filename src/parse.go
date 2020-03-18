@@ -3,20 +3,36 @@ package calclisrc
 
 import (
 	"regexp"
-	"strings"
 )
 
-func parseArgs(args string, debug bool) string {
-	// variable to be returned
-	returnString := args
-
-	// regular expressions to interpret user input:
+// parse all PEMDAS operations
+func parseSimpleOperations(equation string, debug bool) string {
 	// simple operations:
 	addOpRegex := regexp.MustCompile(`\-?\d+(\.\d*)?\+\-?\d+(\.\d*)?`)
 	subOpRegex := regexp.MustCompile(`\-?\d+(\.\d*)?\-\-?\d+(\.\d*)?`)
 	multOpRegex := regexp.MustCompile(`\-?\d+(\.\d*)?\*\-?\d+(\.\d*)?`)
 	divOpRegex := regexp.MustCompile(`\-?\d+(\.\d*)?/\-?\d+(\.\d*)?`)
-	// advanced operations:
+
+	// parse all multiplication in equation
+	for multOpIndex := multOpRegex.FindStringIndex(equation); multOpIndex != nil; multOpIndex = multOpRegex.FindStringIndex(equation) {
+		equation = parseMult(multOpIndex, equation, debug)
+	} // parse all division in equation
+	for divOpIndex := divOpRegex.FindStringIndex(equation); divOpIndex != nil; divOpIndex = divOpRegex.FindStringIndex(equation) {
+		equation = parseDiv(divOpIndex, equation, debug)
+	}
+	// parse all addition in equation
+	for addOpIndex := addOpRegex.FindStringIndex(equation); addOpIndex != nil; addOpIndex = addOpRegex.FindStringIndex(equation) {
+		equation = parseAdd(addOpIndex, equation, debug)
+	}
+	// parse all subtraction in equation
+	for subOpIndex := subOpRegex.FindStringIndex(equation); subOpIndex != nil; subOpIndex = subOpRegex.FindStringIndex(equation) {
+		equation = parseSub(subOpIndex, equation, debug)
+	}
+	return equation
+}
+
+// parses all advanced operations (any that have {} brackets)
+func parseAdvancedOperations(equation string, debug bool) string {
 	// starts from the innermost power in the equation
 	powerOpRegex := regexp.MustCompile(`\-?\d+(\.\d+)?\^\{[^\{\}]*\}`)
 	// starts from the innermost sqrt in the equation
@@ -28,46 +44,30 @@ func parseArgs(args string, debug bool) string {
 	// starts from the innermost tan in the equation
 	tanOpRegex := regexp.MustCompile(`tan\{[^\{\}]+\}`)
 
-	// while there are functions in the equation (any operator that wraps its rigth value in "{}"):
-	for b := strings.Contains(returnString, "{"); b != false; b = strings.Contains(returnString, "{") {
-		// parse all sqrt in equation
-		for sqrtOpIndex := sqrtOpRegex.FindStringIndex(returnString); sqrtOpIndex != nil; sqrtOpIndex = sqrtOpRegex.FindStringIndex(returnString) {
-			returnString = parseSqrt(sqrtOpIndex, returnString, debug)
-		}
-		// parse all exponents in equation
-		for powerOpIndex := powerOpRegex.FindStringIndex(returnString); powerOpIndex != nil; powerOpIndex = powerOpRegex.FindStringIndex(returnString) {
-			returnString = parsePower(powerOpIndex, returnString, debug)
-		}
-		// parse all sin in equation
-		for sinOpIndex := sinOpRegex.FindStringIndex(returnString); sinOpIndex != nil; sinOpIndex = sinOpRegex.FindStringIndex(returnString) {
-			returnString = parseSin(sinOpIndex, returnString, debug)
-		}
-		// parse all cos in equation
-		for cosOpIndex := cosOpRegex.FindStringIndex(returnString); cosOpIndex != nil; cosOpIndex = cosOpRegex.FindStringIndex(returnString) {
-			returnString = parseCos(cosOpIndex, returnString, debug)
-		}
-		// parse all tan in equation
-		for tanOpIndex := tanOpRegex.FindStringIndex(returnString); tanOpIndex != nil; tanOpIndex = tanOpRegex.FindStringIndex(returnString) {
-			returnString = parseTan(tanOpIndex, returnString, debug)
-		}
+	// parse all sqrt in equation
+	for sqrtOpIndex := sqrtOpRegex.FindStringIndex(equation); sqrtOpIndex != nil; sqrtOpIndex = sqrtOpRegex.FindStringIndex(equation) {
+		equation = parseSqrt(sqrtOpIndex, equation, debug)
 	}
+	// parse all exponents in equation
+	for powerOpIndex := powerOpRegex.FindStringIndex(equation); powerOpIndex != nil; powerOpIndex = powerOpRegex.FindStringIndex(equation) {
+		equation = parsePower(powerOpIndex, equation, debug)
+	}
+	// parse all sin in equation
+	for sinOpIndex := sinOpRegex.FindStringIndex(equation); sinOpIndex != nil; sinOpIndex = sinOpRegex.FindStringIndex(equation) {
+		equation = parseSin(sinOpIndex, equation, debug)
+	}
+	// parse all cos in equation
+	for cosOpIndex := cosOpRegex.FindStringIndex(equation); cosOpIndex != nil; cosOpIndex = cosOpRegex.FindStringIndex(equation) {
+		equation = parseCos(cosOpIndex, equation, debug)
+	}
+	// parse all tan in equation
+	for tanOpIndex := tanOpRegex.FindStringIndex(equation); tanOpIndex != nil; tanOpIndex = tanOpRegex.FindStringIndex(equation) {
+		equation = parseTan(tanOpIndex, equation, debug)
+	}
+	return equation
+}
 
-	// parse all multiplication in equation
-	for multOpIndex := multOpRegex.FindStringIndex(returnString); multOpIndex != nil; multOpIndex = multOpRegex.FindStringIndex(returnString) {
-		returnString = parseMult(multOpIndex, returnString, debug)
-	} // parse all division in equation
-	for divOpIndex := divOpRegex.FindStringIndex(returnString); divOpIndex != nil; divOpIndex = divOpRegex.FindStringIndex(returnString) {
-		returnString = parseDiv(divOpIndex, returnString, debug)
-	}
-	// parse all addition in equation
-	for addOpIndex := addOpRegex.FindStringIndex(returnString); addOpIndex != nil; addOpIndex = addOpRegex.FindStringIndex(returnString) {
-		returnString = parseAdd(addOpIndex, returnString, debug)
-	}
-	// parse all subtraction in equation
-	for subOpIndex := subOpRegex.FindStringIndex(returnString); subOpIndex != nil; subOpIndex = subOpRegex.FindStringIndex(returnString) {
-		returnString = parseSub(subOpIndex, returnString, debug)
-	}
-
-	// return string after parsing through order of operations
-	return returnString
+// return equation with all simple and advanced operations parsed
+func parseArgs(equation string, debug bool) string {
+	return parseSimpleOperations(parseAdvancedOperations(equation, debug), debug)
 }
