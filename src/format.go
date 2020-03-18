@@ -9,7 +9,6 @@ import (
 func RemoveSpacesFromEquation(args []string) string {
 	if len(args) > 2 {
 		return regexp.MustCompile(` `).ReplaceAllString(strings.Join(args[2:len(args)], ""), "")
-	} else {
-		return regexp.MustCompile(` `).ReplaceAllString(strings.Join(args[1:len(args)], ""), "")
 	}
+	return regexp.MustCompile(` `).ReplaceAllString(strings.Join(args[1:len(args)], ""), "")
 }
