@@ -7,7 +7,10 @@ import (
 	"regexp"
 )
 
-func ParseArgsParen(args string) string {
+func ParseArgsParen(args string, debug bool) string {
+	if debug {
+		DebugMessageFunctionStart(ParseArgsParen, args)
+	}
 	// define parentheses regex (only finds inner parentheses)
 	parenOpRegex, err := regexp.Compile(`\([^\(\)]+\)`)
 	if err != nil {
@@ -15,8 +18,11 @@ func ParseArgsParen(args string) string {
 	}
 	// parse all parentheses, starting from innermost and working up to outermost
 	for parenIndexes := parenOpRegex.FindStringIndex(args); parenIndexes != nil; parenIndexes = parenOpRegex.FindStringIndex(args) {
-		args = args[:parenIndexes[0]] + parseArgs(args[parenIndexes[0]+1:parenIndexes[1]-1]) + args[parenIndexes[1]:]
+		args = args[:parenIndexes[0]] + parseArgs(args[parenIndexes[0]+1:parenIndexes[1]-1], debug) + args[parenIndexes[1]:]
+	}
+	if debug {
+		DebugMessageFunctionEnd(ParseArgsParen, args)
 	}
 	// Once we know that all parentheses are resolved, parse other args and return string answer
-	return parseArgs(args)
+	return parseArgs(args, debug)
 }
