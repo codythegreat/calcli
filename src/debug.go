@@ -15,11 +15,11 @@ func getFunctionName(i interface{}) string {
 // debug message at start of function
 // function name starts at 35th index
 func DebugMessageFunctionStart(function interface{}, output string) {
-	fmt.Printf("DEBUGGER: %-20v called with %s as input\n", getFunctionName(function)[35:], output)
+	fmt.Printf("DEBUGGER: %-20v input:  %s\n", getFunctionName(function)[35:], output)
 }
 
 // debug message at end of function
 // function name starts at 35th index
 func DebugMessageFunctionEnd(function interface{}, output string) {
-	fmt.Printf("DEBUGGER: %-20v returned with %s as ouput\n", getFunctionName(function)[35:], output)
+	fmt.Printf("DEBUGGER: %-20v output: %s\n", getFunctionName(function)[35:], output)
 }
