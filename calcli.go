@@ -20,6 +20,7 @@ var ceil = flag.Bool("ceil", false, "rounds result up")
 var round = flag.Bool("round", false, "rounds result")
 var latexI = flag.Bool("latexI", false, "Only prints LaTeX Inline formatting")
 var latexD = flag.Bool("latexD", false, "Only prints LaTeX Display formatting")
+var debug = flag.Bool("db", false, "prints functions, inputs, and outputs throughout execution")
 
 func main() {
 	// if os.Args missing equation, return error
@@ -64,23 +65,23 @@ func main() {
 	case *floor:
 		printEquation()
 		userArgs = strings.Replace(strings.Replace(userArgs, "{", "{(", -1), "}", ")}", -1)
-		fmt.Printf("\treturn value:\t%v\n\n", strconv.FormatFloat(math.Floor(solveEquationFloat()), 'f', -1, 64))
+		fmt.Printf("\treturn value:\t%v\n\n", strconv.FormatFloat(math.Floor(solveEquationFloat(*debug)), 'f', -1, 64))
 	case *ceil:
 		printEquation()
 		userArgs = strings.Replace(strings.Replace(userArgs, "{", "{(", -1), "}", ")}", -1)
-		fmt.Printf("\treturn value:\t%v\n\n", strconv.FormatFloat(math.Ceil(solveEquationFloat()), 'f', -1, 64))
+		fmt.Printf("\treturn value:\t%v\n\n", strconv.FormatFloat(math.Ceil(solveEquationFloat(*debug)), 'f', -1, 64))
 	case *round:
 		printEquation()
 		userArgs = strings.Replace(strings.Replace(userArgs, "{", "{(", -1), "}", ")}", -1)
-		fmt.Printf("\treturn value:\t%v\n\n", strconv.FormatFloat(math.Round(solveEquationFloat()), 'f', -1, 64))
+		fmt.Printf("\treturn value:\t%v\n\n", strconv.FormatFloat(math.Round(solveEquationFloat(*debug)), 'f', -1, 64))
 	case *abs:
 		printEquation()
 		userArgs = strings.Replace(strings.Replace(userArgs, "{", "{(", -1), "}", ")}", -1)
-		fmt.Printf("\treturn value:\t%v\n\n", strconv.FormatFloat(math.Abs(solveEquationFloat()), 'f', -1, 64))
+		fmt.Printf("\treturn value:\t%v\n\n", strconv.FormatFloat(math.Abs(solveEquationFloat(*debug)), 'f', -1, 64))
 	default:
 		printEquation()
 		userArgs = strings.Replace(strings.Replace(userArgs, "{", "{(", -1), "}", ")}", -1)
-		fmt.Printf("\treturn value:\t%v\n\n", strconv.FormatFloat(solveEquationFloat(), 'f', -1, 64))
+		fmt.Printf("\treturn value:\t%v\n\n", strconv.FormatFloat(solveEquationFloat(*debug), 'f', -1, 64))
 	}
 }
 
@@ -92,8 +93,8 @@ func printEquation() {
 	fmt.Printf("\tLateX Display:\t$$%s$$\n\n", calclisrc.ConvertToLaTeX(userArgs))
 }
 
-func solveEquationFloat() float64 {
-	floatAnswer, err := strconv.ParseFloat(calclisrc.ParseArgsParen(userArgs), 64)
+func solveEquationFloat(debug bool) float64 {
+	floatAnswer, err := strconv.ParseFloat(calclisrc.ParseArgsParen(userArgs, debug), 64)
 	if err != nil {
 		fmt.Printf("While handling flags: %v", err)
 	}
