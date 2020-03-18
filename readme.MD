@@ -8,7 +8,9 @@ If you see something in the code that can be improved or fixed, please feel free
 
 ## USAGE
 
-Calcli can be used with or without flags -floor, -ceil, -round, -abs, latexI and latexD.
+Calcli can be used with or without flags -floor, -ceil, -round, -abs, -latexI and -latexD.
+
+The -debug prints each function call with pertinent inputs and outputs
 
 Currently you can only use one flag at a time.
 
