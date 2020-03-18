@@ -10,6 +10,9 @@ import (
 )
 
 func parseSin(loc []int, equation string, debug bool) string {
+	if debug {
+		DebugMessageFunctionStart(parseSin, equation)
+	}
 	// strip sqrt declaration from equation
 	innerSin := equation[loc[0]+4 : loc[1]-1]
 	// if sqrt[] contains other operators, parse their values:
@@ -27,9 +30,15 @@ func parseSin(loc []int, equation string, debug bool) string {
 	}
 	// parse both digits in equation
 	equation = equation[:loc[0]] + strconv.FormatFloat(math.Sin(sinFloat), 'f', -1, 64) + equation[loc[1]:]
+	if debug {
+		DebugMessageFunctionEnd(parseSin, equation)
+	}
 	return equation
 }
 func parseTan(loc []int, equation string, debug bool) string {
+	if debug {
+		DebugMessageFunctionStart(parseTan, equation)
+	}
 	// strip sqrt declaration from equation
 	innerTan := equation[loc[0]+4 : loc[1]-1]
 	// if sqrt[] contains other operators, parse their values:
@@ -47,9 +56,15 @@ func parseTan(loc []int, equation string, debug bool) string {
 	}
 	// parse both digits in equation
 	equation = equation[:loc[0]] + strconv.FormatFloat(math.Tan(tanFloat), 'f', -1, 64) + equation[loc[1]:]
+	if debug {
+		DebugMessageFunctionEnd(parseTan, equation)
+	}
 	return equation
 }
 func parseCos(loc []int, equation string, debug bool) string {
+	if debug {
+		DebugMessageFunctionStart(parseCos, equation)
+	}
 	// strip sqrt declaration from equation
 	innerCos := equation[loc[0]+4 : loc[1]-1]
 	// if sqrt[] contains other operators, parse their values:
@@ -67,9 +82,15 @@ func parseCos(loc []int, equation string, debug bool) string {
 	}
 	// parse both digits in equation
 	equation = equation[:loc[0]] + strconv.FormatFloat(math.Cos(cosFloat), 'f', -1, 64) + equation[loc[1]:]
+	if debug {
+		DebugMessageFunctionEnd(parseCos, equation)
+	}
 	return equation
 }
 func parsePower(loc []int, equation string, debug bool) string {
+	if debug {
+		DebugMessageFunctionStart(parsePower, equation)
+	}
 	// get right side of power
 	rightSide := equation[strings.Index(equation, "{")+1 : loc[1]-1]
 	leftSide := strings.Split(equation[loc[0]:], "^")[0]
@@ -93,9 +114,15 @@ func parsePower(loc []int, equation string, debug bool) string {
 	}
 	// parse both digits in equation
 	equation = equation[:loc[0]] + strconv.FormatFloat(math.Pow(leftSideFloat, rightSideFloat), 'f', -1, 64) + equation[loc[1]:]
+	if debug {
+		DebugMessageFunctionEnd(parsePower, equation)
+	}
 	return equation
 }
 func parseSqrt(loc []int, equation string, debug bool) string {
+	if debug {
+		DebugMessageFunctionStart(parseSqrt, equation)
+	}
 	// strip sqrt declaration from equation
 	innerSqrt := equation[loc[0]+5 : loc[1]-1]
 	// if sqrt[] contains other operators, parse their values:
@@ -113,5 +140,8 @@ func parseSqrt(loc []int, equation string, debug bool) string {
 	}
 	// parse both digits in equation
 	equation = equation[:loc[0]] + strconv.FormatFloat(math.Sqrt(sqrtFloat), 'f', -1, 64) + equation[loc[1]:]
+	if debug {
+		DebugMessageFunctionEnd(parseSqrt, equation)
+	}
 	return equation
 }

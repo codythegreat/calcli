@@ -10,6 +10,9 @@ import (
 )
 
 func parseMult(loc []int, equation string, debug bool) string {
+	if debug {
+		DebugMessageFunctionStart(parseMult, equation)
+	}
 	// split at * to get both digits
 	multString := strings.Split(equation[loc[0]:loc[1]], "*")
 	// parse both digits in equation
@@ -27,9 +30,15 @@ func parseMult(loc []int, equation string, debug bool) string {
 		return equation
 	}
 	equation = equation[:loc[0]] + strconv.FormatFloat(leftSide*rightSide, 'f', -1, 64) + equation[loc[1]:]
+	if debug {
+		DebugMessageFunctionEnd(parseMult, equation)
+	}
 	return equation
 }
 func parseDiv(loc []int, equation string, debug bool) string {
+	if debug {
+		DebugMessageFunctionStart(parseDiv, equation)
+	}
 	// split at / to get both digits
 	divString := strings.Split(equation[loc[0]:loc[1]], "/")
 	// parse both digits in equation
@@ -43,9 +52,15 @@ func parseDiv(loc []int, equation string, debug bool) string {
 	}
 	// write the values to the input
 	equation = equation[:loc[0]] + strconv.FormatFloat(leftSide/rightSide, 'f', -1, 64) + equation[loc[1]:]
+	if debug {
+		DebugMessageFunctionEnd(parseDiv, equation)
+	}
 	return equation
 }
 func parseAdd(loc []int, equation string, debug bool) string {
+	if debug {
+		DebugMessageFunctionStart(parseAdd, equation)
+	}
 	// split at + to get both digits
 	addString := strings.Split(equation[loc[0]:loc[1]], "+")
 	// parse both digits in equation
@@ -59,9 +74,15 @@ func parseAdd(loc []int, equation string, debug bool) string {
 	}
 	// write the values to the input
 	equation = equation[:loc[0]] + strconv.FormatFloat(leftSide+rightSide, 'f', -1, 64) + equation[loc[1]:]
+	if debug {
+		DebugMessageFunctionEnd(parseAdd, equation)
+	}
 	return equation
 }
 func parseSub(loc []int, equation string, debug bool) string {
+	if debug {
+		DebugMessageFunctionStart(parseSub, equation)
+	}
 	// check to see if first number is negative. split at the minus sign.
 	countMinus := strings.Count(equation, "-")
 	var subString []string
@@ -82,5 +103,8 @@ func parseSub(loc []int, equation string, debug bool) string {
 	}
 	// write the values to the input
 	equation = equation[:loc[0]] + strconv.FormatFloat(leftSide-rightSide, 'f', -1, 64) + equation[loc[1]:]
+	if debug {
+		DebugMessageFunctionEnd(parseSub, equation)
+	}
 	return equation
 }
