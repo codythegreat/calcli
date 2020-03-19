@@ -21,6 +21,7 @@ var round = flag.Bool("round", false, "rounds result")
 var latexI = flag.Bool("latexI", false, "Only prints LaTeX Inline formatting")
 var latexD = flag.Bool("latexD", false, "Only prints LaTeX Display formatting")
 var debug = flag.Bool("db", false, "prints functions, inputs, and outputs throughout execution")
+var answer = flag.Bool("answer", false, "prints answer only")
 
 func main() {
 	// if os.Args missing equation, return error
@@ -78,6 +79,8 @@ func main() {
 		printEquation()
 		userArgs = strings.Replace(strings.Replace(userArgs, "{", "{(", -1), "}", ")}", -1)
 		fmt.Printf("\treturn value:\t%v\n\n", strconv.FormatFloat(math.Abs(solveEquationFloat(*debug)), 'f', -1, 64))
+    case *debug||*answer:
+        fmt.Printf("%v\n", strconv.FormatFloat(solveEquationFloat(*debug), 'f', -1, 64))
 	default:
 		printEquation()
 		userArgs = strings.Replace(strings.Replace(userArgs, "{", "{(", -1), "}", ")}", -1)
