@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+
+# tests various equations for correct answer
+# answers are multiples of 3. You should see
+# 3 - 30 listed.
+
 import subprocess
 
 commands = [
