@@ -69,5 +69,7 @@ func parseAdvancedOperations(equation string, debug bool) string {
 
 // return equation with all simple and advanced operations parsed
 func parseArgs(equation string, debug bool) string {
-	return parseSimpleOperations(parseAdvancedOperations(equation, debug), debug)
+	return parseSimpleOperations(
+        parseAdvancedOperations(equation, debug), debug
+    )
 }
